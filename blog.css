@@ -1,0 +1,99 @@
+html,
+body,
+header,
+.view {
+  height: 100vh;
+  width: 100vw;
+  font-family: 'Nunito', sans-serif;
+  padding: 0;
+  margin: 0;
+}
+  
+  .wintergreen {
+    background-color: #6b9080;
+  }
+  
+  .cambridgeblue {
+    background-color: #cce3de;
+  }
+
+  @media (max-width: 740px) {
+    html,
+    body,
+    header,
+    .view {
+      height: 100vh;
+    }
+  }
+
+  h1 {
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      overflow: wrap;
+      margin-left: 10vw;
+      margin-right: 10vw;
+      letter-spacing: 8px;
+  }
+
+.container {
+    padding: 0;
+}
+
+.textcontainer {
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+    padding-right: 5vh;
+    padding-left: 5vh;
+    margin-top: 5vw
+}
+
+.img-fluid {
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+    padding-left: 5vh;
+    padding-right: 5vh;
+    max-height: 100vh;
+    width: auto;
+}
+
+.nav-link {
+    color: black;
+    font-size: 20px;
+}
+
+.navbar {
+    padding: 0;
+}
+
+.text-center {
+    font-size: 4.5vw;
+
+}
+
+form {
+    max-width: 40%;
+    margin: 0 auto;
+    margin-top: 5vh;
+    text-align: center;
+    font-size: 2vw;
+    margin-bottom: 10vh;
+}
+
+.card {
+  margin: 3vw;
+  border-color: #6b9080;
+}
+
+.btn {
+  background-color: #6b9080;
+  border-color:  #6b9080;
+}
+
+.btn:hover {
+  background-color: #cce3de;
+  border-color: #cce3de;
+}
+.btn:hover {
+  color: black;
+
+}
