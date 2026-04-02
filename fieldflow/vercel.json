@@ -1,0 +1,13 @@
+{
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/review-requests",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/appointment-reminders",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
