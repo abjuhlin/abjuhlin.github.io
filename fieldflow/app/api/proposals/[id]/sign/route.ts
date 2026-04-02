@@ -63,7 +63,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       status: 'signed',
       signed_at: now,
       signed_ip: ip,
-      signature_data: signature,
     })
     .eq('id', params.id)
     .select()
@@ -87,16 +86,20 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       .maybeSingle()
 
     if (!existingJob) {
+      const { data: jobNumData } = await supabase
+        .rpc('get_next_number', { p_company_id: proposal.company_id, p_type: 'job' })
+      const jobNumber = jobNumData || `JOB-${Date.now()}`
+
       const { data: newJob } = await supabase
         .from('jobs')
         .insert({
           company_id: proposal.company_id,
           customer_id: customer?.id,
           proposal_id: params.id,
+          job_number: jobNumber,
           title: proposal.title,
           status: 'scheduled',
-          notes: `Created from proposal ${proposal.proposal_number}`,
-          total: proposal.total,
+          internal_notes: `Created from proposal ${proposal.proposal_number}`,
         })
         .select('id')
         .single()
