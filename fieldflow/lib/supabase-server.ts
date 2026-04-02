@@ -1,9 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-// Re-export for convenience so server files only need one import
-export { createServiceRoleClient } from './supabase'
 
-// Server-side Supabase client (Server Components, Route Handlers, Server Actions only)
+// Server-side Supabase client — only use in Server Components and API route handlers
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies()
   return createServerClient(
@@ -14,13 +12,13 @@ export async function createServerSupabaseClient() {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }>) {
+        setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options as any)
+              cookieStore.set(name, value, options)
             )
           } catch {
-            // Server Component — cannot set cookies
+            // Server Component — middleware handles session refresh
           }
         },
       },
