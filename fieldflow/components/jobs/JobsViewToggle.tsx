@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { formatDateTime } from '@/lib/utils'
+import { formatDateTime, resolveJobStatus } from '@/lib/utils'
 import {
   startOfWeek,
   endOfWeek,
@@ -114,7 +114,7 @@ function ListView({ jobs }: { jobs: Job[] }) {
                   {job.scheduled_start ? formatDateTime(job.scheduled_start) : '—'}
                 </td>
                 <td className="py-3 px-4">
-                  <StatusBadge status={job.status} />
+                  <StatusBadge status={resolveJobStatus(job.status, job.scheduled_start)} />
                 </td>
               </tr>
             ))}

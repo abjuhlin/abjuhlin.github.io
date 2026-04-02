@@ -44,10 +44,17 @@ export function getStatusColor(status: string): string {
     expired: 'bg-orange-100 text-orange-700',
     overdue: 'bg-orange-100 text-orange-700',
     invoiced: 'bg-purple-100 text-purple-700',
+    unscheduled: 'bg-yellow-100 text-yellow-700',
   }
   return colors[status] || 'bg-gray-100 text-gray-700'
 }
 
 export function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, ' ')
+}
+
+// Returns 'unscheduled' when a job has status 'scheduled' but no date set yet
+export function resolveJobStatus(status: string, scheduledStart: string | null | undefined): string {
+  if (status === 'scheduled' && !scheduledStart) return 'unscheduled'
+  return status
 }

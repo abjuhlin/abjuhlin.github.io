@@ -1,7 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { formatDateTime } from '@/lib/utils'
+import { formatDateTime, resolveJobStatus } from '@/lib/utils'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { JobStatusUpdate } from '@/components/jobs/JobStatusUpdate'
 import { JobPhotos } from '@/components/jobs/JobPhotos'
@@ -146,7 +146,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
               >
                 {job.title}
               </h1>
-              <StatusBadge status={job.status} />
+              <StatusBadge status={resolveJobStatus(job.status, job.scheduled_start)} />
             </div>
             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
               <span className="font-mono text-brand font-medium">{job.job_number}</span>
@@ -343,10 +343,31 @@ export default async function JobDetailPage({ params }: { params: { id: string }
               Update Status
             </h2>
             <div className="mb-3">
-              <StatusBadge status={job.status} />
+              <StatusBadge status={resolveJobStatus(job.status, job.scheduled_start)} />
             </div>
             <JobStatusUpdate jobId={job.id} currentStatus={job.status} />
           </div>
+
+          {/* Proposal reference card */}
+          {proposal && (
+            <div className="card p-5">
+              <h2 className="font-semibold text-gray-900 text-sm uppercase tracking-wide mb-3">
+                From Proposal
+              </h2>
+              <Link
+                href={`/dashboard/proposals/${job.proposal_id}`}
+                className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-brand/5 border border-gray-200 hover:border-brand/30 transition-colors"
+              >
+                <div>
+                  <div className="font-mono text-sm font-semibold text-brand">{proposal.proposal_number}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">View original proposal →</div>
+                </div>
+                <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          )}
 
           {/* Customer card */}
           <div className="card p-5">

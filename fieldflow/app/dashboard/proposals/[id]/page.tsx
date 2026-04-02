@@ -51,6 +51,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
     .maybeSingle()
 
   const hasJob = !!existingJob
+  const jobId = existingJob?.id ?? null
 
   const customer = proposal.customers as any
   const lineItems: any[] = Array.isArray(proposal.line_items) ? proposal.line_items : []
@@ -125,6 +126,29 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
             </div>
           </div>
 
+          {/* Linked job banner */}
+          {proposal.status === 'signed' && jobId && (
+            <Link
+              href={`/dashboard/jobs/${jobId}`}
+              className="flex items-center justify-between p-4 bg-brand/5 border border-brand/20 rounded-lg hover:bg-brand/10 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center text-brand">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-brand">Job created from this proposal</div>
+                  <div className="text-xs text-gray-500">Click to view and schedule the job →</div>
+                </div>
+              </div>
+              <svg className="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          )}
+
           {/* Signed info */}
           {proposal.status === 'signed' && proposal.signed_at && (
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-sm">
@@ -136,18 +160,18 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
           )}
 
           {/* Intro message */}
-          {(proposal.description || proposal.notes) && (
+          {(proposal.message || proposal.terms) && (
             <div className="card p-5 space-y-4">
-              {proposal.description && (
+              {proposal.message && (
                 <div>
                   <h2 className="text-sm font-semibold text-gray-500 uppercase mb-2">Message</h2>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{proposal.description}</p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{proposal.message}</p>
                 </div>
               )}
-              {proposal.notes && (
+              {proposal.terms && (
                 <div>
                   <h2 className="text-sm font-semibold text-gray-500 uppercase mb-2">Terms &amp; Conditions</h2>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{proposal.notes}</p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{proposal.terms}</p>
                 </div>
               )}
             </div>
