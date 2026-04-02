@@ -10,8 +10,8 @@ interface ProposalData {
   id: string
   proposal_number: string
   title: string
-  description: string | null
-  notes: string | null
+  message: string | null
+  terms: string | null
   line_items: any[]
   subtotal: number
   tax_rate: number
@@ -289,9 +289,9 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
                   </p>
                 </div>
               </div>
-              {proposal.description && (
+              {proposal.message && (
                 <p className="text-gray-600 mt-4 text-sm leading-relaxed whitespace-pre-wrap">
-                  {proposal.description}
+                  {proposal.message}
                 </p>
               )}
             </div>
@@ -356,10 +356,10 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
             )}
 
             {/* Terms */}
-            {proposal.notes && (
+            {proposal.terms && (
               <div className="text-sm text-gray-600 border-t border-gray-100 pt-4">
                 <p className="font-semibold text-gray-700 mb-1">Terms &amp; Conditions</p>
-                <p className="whitespace-pre-wrap leading-relaxed">{proposal.notes}</p>
+                <p className="whitespace-pre-wrap leading-relaxed">{proposal.terms}</p>
               </div>
             )}
           </div>
