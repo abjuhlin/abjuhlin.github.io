@@ -114,7 +114,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       job_id: job.id,
       invoice_number: invoiceNumber,
       status: 'draft',
-      title: job.title,
       line_items: lineItems,
       subtotal,
       tax_rate: taxRate,
