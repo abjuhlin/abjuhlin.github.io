@@ -58,9 +58,9 @@ export default function SettingsPage() {
 
   // Notifications
   const [notifications, setNotifications] = useState<NotificationSettings>({
-    notify_dispatch_sms: false,
-    notify_24h_reminder: false,
-    notify_1h_reminder: false,
+    notify_dispatch: false,
+    notify_reminder_24h: false,
+    notify_reminder_1h: false,
     notify_review_request: false,
   })
 
@@ -108,9 +108,9 @@ export default function SettingsPage() {
           })
           setLogoPreview(data.logo_url || null)
           setNotifications({
-            notify_dispatch_sms: data.notify_dispatch_sms ?? false,
-            notify_24h_reminder: data.notify_24h_reminder ?? false,
-            notify_1h_reminder: data.notify_1h_reminder ?? false,
+            notify_dispatch: data.notify_dispatch ?? false,
+            notify_reminder_24h: data.notify_reminder_24h ?? false,
+            notify_reminder_1h: data.notify_reminder_1h ?? false,
             notify_review_request: data.notify_review_request ?? false,
           })
         }
@@ -598,17 +598,17 @@ export default function SettingsPage() {
           <div className="space-y-4">
             {[
               {
-                key: 'notify_dispatch_sms' as const,
+                key: 'notify_dispatch' as const,
                 label: 'Dispatch SMS',
                 description: "Send a text to the customer when a technician is dispatched.",
               },
               {
-                key: 'notify_24h_reminder' as const,
+                key: 'notify_reminder_24h' as const,
                 label: '24-Hour Reminder',
                 description: 'Remind the customer 24 hours before their scheduled appointment.',
               },
               {
-                key: 'notify_1h_reminder' as const,
+                key: 'notify_reminder_1h' as const,
                 label: '1-Hour Reminder',
                 description: 'Remind the customer 1 hour before their scheduled appointment.',
               },

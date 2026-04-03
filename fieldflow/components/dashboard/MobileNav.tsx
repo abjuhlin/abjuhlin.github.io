@@ -58,7 +58,7 @@ export function MobileNav() {
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Menu</h3>
             {[
               { href: '/dashboard/customers', label: 'Customers' },
-              { href: '/dashboard/invoices', label: 'Invoices' },
+              { href: '/dashboard/proposals', label: 'Proposals' },
               { href: '/dashboard/playbooks', label: 'Playbooks' },
               { href: '/dashboard/settings', label: 'Settings' },
             ].map(({ href, label }) => (

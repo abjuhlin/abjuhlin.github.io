@@ -102,28 +102,6 @@ export function JobStatusUpdate({ jobId, currentStatus }: { jobId: string; curre
           {loading ? 'Updating...' : labels[currentStatus] || 'Update Status'}
         </button>
       )}
-      {showInvoicePrompt && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-sm font-medium text-green-900 mb-3">
-            Job marked as complete. Would you like to create an invoice?
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={createInvoice}
-              disabled={invoiceLoading}
-              className="btn-primary text-sm"
-            >
-              {invoiceLoading ? 'Creating...' : 'Yes, create invoice'}
-            </button>
-            <button
-              onClick={() => setShowInvoicePrompt(false)}
-              className="btn-secondary text-sm"
-            >
-              Not yet
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

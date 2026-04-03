@@ -41,9 +41,11 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         email,
         address,
         city,
-        state
+        state,
+        zip
       ),
       jobs (
+        id,
         title,
         job_number
       )
