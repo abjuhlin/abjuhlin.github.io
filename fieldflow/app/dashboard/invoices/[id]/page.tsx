@@ -71,6 +71,9 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         </Link>
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-2xl font-bold text-gray-900 font-mono">{invoice.invoice_number}</h1>
+          {job?.title && (
+            <span className="text-gray-500 font-sans font-normal text-lg">{job.title}</span>
+          )}
           <StatusBadge status={invoice.status} />
         </div>
         <div className="ml-auto">
@@ -117,8 +120,11 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
           {(customer?.address || customer?.city) && (
             <div className="text-gray-600">
               {customer.address && <div>{customer.address}</div>}
-              {(customer.city || customer.state) && (
-                <div>{[customer.city, customer.state].filter(Boolean).join(', ')}</div>
+              {(customer.city || customer.state || customer.zip) && (
+                <div>
+                  {[customer.city, customer.state].filter(Boolean).join(', ')}
+                  {customer.zip ? ` ${customer.zip}` : ''}
+                </div>
               )}
             </div>
           )}
