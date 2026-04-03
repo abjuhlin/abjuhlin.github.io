@@ -4,7 +4,16 @@ import Link from 'next/link'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { JobsViewToggle } from '@/components/jobs/JobsViewToggle'
 
-const STATUS_FILTERS = ['all', 'scheduled', 'en_route', 'in_progress', 'complete', 'cancelled']
+const STATUS_FILTERS: { value: string; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'unscheduled', label: 'Unscheduled' },
+  { value: 'scheduled', label: 'Scheduled' },
+  { value: 'en_route', label: 'En Route' },
+  { value: 'in_progress', label: 'In Progress' },
+  { value: 'complete', label: 'Complete' },
+  { value: 'invoiced', label: 'Invoiced' },
+  { value: 'cancelled', label: 'Cancelled' },
+]
 
 export default async function JobsPage({
   searchParams,
@@ -35,7 +44,9 @@ export default async function JobsPage({
     .eq('company_id', userData.company_id)
     .order('scheduled_start', { ascending: true, nullsFirst: false })
 
-  if (activeStatus !== 'all') {
+  if (activeStatus === 'unscheduled') {
+    query = query.eq('status', 'scheduled').is('scheduled_start', null)
+  } else if (activeStatus !== 'all') {
     query = query.eq('status', activeStatus)
   }
 
@@ -57,17 +68,17 @@ export default async function JobsPage({
 
       {/* Filter tabs */}
       <div className="flex gap-1 mb-4 overflow-x-auto pb-1">
-        {STATUS_FILTERS.map((s) => (
+        {STATUS_FILTERS.map(({ value, label }) => (
           <Link
-            key={s}
-            href={s === 'all' ? '/dashboard/jobs' : `/dashboard/jobs?status=${s}`}
+            key={value}
+            href={value === 'all' ? '/dashboard/jobs' : `/dashboard/jobs?status=${value}`}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-              activeStatus === s
+              activeStatus === value
                 ? 'bg-brand text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ')}
+            {label}
           </Link>
         ))}
       </div>
