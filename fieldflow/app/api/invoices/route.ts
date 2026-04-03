@@ -92,7 +92,6 @@ export async function POST(request: NextRequest) {
     amount_due,
     due_date,
     status = 'draft',
-    notes,
   } = body
 
   if (!customer_id) {
@@ -158,7 +157,6 @@ export async function POST(request: NextRequest) {
     deposit_applied: deposit_applied ?? 0,
     amount_due: amount_due ?? total ?? 0,
     due_date: due_date || null,
-    notes: notes ?? null,
   }
 
   if (status === 'sent') {

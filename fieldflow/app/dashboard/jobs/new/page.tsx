@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { CustomerModal } from '@/components/customers/CustomerModal'
+import { AddressAutocomplete } from '@/components/ui/AddressAutocomplete'
 
 interface Customer {
   id: string
@@ -345,13 +346,16 @@ export default function NewJobPage() {
           <h2 className="font-semibold text-gray-900">Job Address</h2>
 
           <div>
-            <label className="label">Street Address</label>
-            <input
-              type="text"
-              className="input"
-              placeholder="123 Main St"
+            <AddressAutocomplete
+              label="Street Address"
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={setAddress}
+              onSelect={(parts) => {
+                setAddress(parts.address)
+                setCity(parts.city)
+                setState(parts.state)
+                setZip(parts.zip)
+              }}
             />
           </div>
 

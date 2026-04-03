@@ -147,6 +147,14 @@ export default async function JobDetailPage({ params }: { params: { id: string }
                 {job.title}
               </h1>
               <StatusBadge status={resolveJobStatus(job.status, job.scheduled_start)} />
+              {!['paid'].includes(job.status) && (
+                <Link
+                  href={`/dashboard/jobs/${job.id}/edit`}
+                  className="text-xs px-2.5 py-1 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                >
+                  Edit
+                </Link>
+              )}
             </div>
             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
               <span className="font-mono text-brand font-medium">{job.job_number}</span>

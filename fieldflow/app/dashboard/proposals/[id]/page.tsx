@@ -82,6 +82,14 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
           <p className="text-sm text-gray-500">{customer?.full_name}</p>
         </div>
         <div className="flex items-center gap-3">
+          {!['signed'].includes(proposal.status) && (
+            <Link
+              href={`/dashboard/proposals/${params.id}/edit`}
+              className="btn-secondary text-sm"
+            >
+              Edit
+            </Link>
+          )}
           <Link
             href={`/proposal/${params.id}`}
             target="_blank"

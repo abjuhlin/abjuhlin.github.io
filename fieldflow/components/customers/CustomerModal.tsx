@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Modal } from '@/components/ui/Modal'
+import { AddressAutocomplete } from '@/components/ui/AddressAutocomplete'
 
 interface CustomerFormData {
   full_name: string
@@ -265,18 +266,19 @@ export function CustomerModal({ companyId, customerId, initialName, onClose, onS
 
             {/* Address */}
             <div>
-              <label htmlFor="address" className="label">
-                Street Address
-              </label>
-              <input
-                id="address"
-                name="address"
-                type="text"
-                autoComplete="street-address"
+              <AddressAutocomplete
+                label="Street Address"
                 value={form.address}
-                onChange={handleChange}
-                className="input"
-                placeholder="123 Main St"
+                onChange={(val) => setForm((prev) => ({ ...prev, address: val }))}
+                onSelect={(parts) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    address: parts.address,
+                    city: parts.city,
+                    state: parts.state,
+                    zip: parts.zip,
+                  }))
+                }
               />
             </div>
 

@@ -76,7 +76,12 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
           )}
           <StatusBadge status={invoice.status} />
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          {['draft', 'sent'].includes(invoice.status) && (
+            <Link href={`/dashboard/invoices/${invoice.id}/edit`} className="btn-secondary text-sm">
+              Edit
+            </Link>
+          )}
           <Link
             href={`/invoice/${invoice.id}`}
             target="_blank"

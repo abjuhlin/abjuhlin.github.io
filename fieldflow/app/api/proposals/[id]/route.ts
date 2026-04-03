@@ -77,10 +77,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
   if (body.status) updates.status = body.status
   if (body.title !== undefined) updates.title = body.title
-  if (body.description !== undefined) updates.description = body.description
-  if (body.notes !== undefined) updates.notes = body.notes
-  if (body.message !== undefined) updates.description = body.message
-  if (body.terms !== undefined) updates.notes = body.terms
+  if (body.message !== undefined) updates.message = body.message
+  if (body.terms !== undefined) updates.terms = body.terms
   if (body.line_items !== undefined) updates.line_items = body.line_items
   if (body.subtotal !== undefined) updates.subtotal = body.subtotal
   if (body.tax_rate !== undefined) updates.tax_rate = body.tax_rate

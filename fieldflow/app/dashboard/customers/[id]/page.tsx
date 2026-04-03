@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { CustomerTabs } from './CustomerTabs'
+import { CustomerEditButton } from './CustomerEditButton'
 
 export default async function CustomerDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createServerSupabaseClient()
@@ -60,12 +61,15 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
             {customer.full_name}
           </h1>
         </div>
-        <Link
-          href={`/dashboard/jobs/new?customer=${customer.id}`}
-          className="btn-primary"
-        >
-          New Job
-        </Link>
+        <div className="flex items-center gap-2">
+          <CustomerEditButton customerId={customer.id} companyId={userData!.company_id} />
+          <Link
+            href={`/dashboard/jobs/new?customer=${customer.id}`}
+            className="btn-primary"
+          >
+            New Job
+          </Link>
+        </div>
       </div>
       <CustomerTabs
         customer={customer}

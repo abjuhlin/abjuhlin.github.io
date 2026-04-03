@@ -50,7 +50,6 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
       sent_at,
       created_at,
       updated_at,
-      notes,
       customers (
         id,
         full_name,
@@ -111,7 +110,6 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     'due_date',
     'paid_at',
     'sent_at',
-    'notes',
     'job_id',
   ]
 
