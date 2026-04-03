@@ -84,11 +84,12 @@ function ListView({ jobs }: { jobs: Job[] }) {
               <th className="text-left py-3 px-4 font-medium text-gray-600 hidden lg:table-cell">Tech</th>
               <th className="text-left py-3 px-4 font-medium text-gray-600 hidden sm:table-cell whitespace-nowrap">Date</th>
               <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+              <th className="py-3 px-4" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {jobs.map((job) => (
-              <tr key={job.id} className="hover:bg-gray-50 cursor-pointer">
+              <tr key={job.id} className="hover:bg-gray-50">
                 <td className="py-3 px-4">
                   <Link href={`/dashboard/jobs/${job.id}`} className="block">
                     <span className="font-mono font-medium text-brand text-xs">{job.job_number}</span>
@@ -115,6 +116,16 @@ function ListView({ jobs }: { jobs: Job[] }) {
                 </td>
                 <td className="py-3 px-4">
                   <StatusBadge status={resolveJobStatus(job.status, job.scheduled_start)} />
+                </td>
+                <td className="py-3 px-4 text-right">
+                  {!['paid'].includes(job.status) && (
+                    <Link
+                      href={`/dashboard/jobs/${job.id}/edit`}
+                      className="text-xs text-gray-400 hover:text-brand transition-colors px-2 py-1 rounded hover:bg-brand/5"
+                    >
+                      Edit
+                    </Link>
+                  )}
                 </td>
               </tr>
             ))}

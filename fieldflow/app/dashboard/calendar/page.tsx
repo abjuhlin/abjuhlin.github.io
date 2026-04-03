@@ -11,6 +11,7 @@ interface CalEvent {
   href: string
   customerName?: string
   scheduledStart?: string | null
+  scheduledEnd?: string | null
 }
 
 export default async function CalendarPage() {
@@ -37,7 +38,7 @@ export default async function CalendarPage() {
   const [{ data: jobs }, { data: invoices }] = await Promise.all([
     supabase
       .from('jobs')
-      .select('id, job_number, title, status, scheduled_start, customers (id, full_name)')
+      .select('id, job_number, title, status, scheduled_start, scheduled_end, customers (id, full_name)')
       .eq('company_id', companyId)
       .not('scheduled_start', 'is', null)
       .gte('scheduled_start', rangeStart.toISOString())
@@ -64,6 +65,7 @@ export default async function CalendarPage() {
       href: `/dashboard/jobs/${job.id}`,
       customerName: customer?.full_name,
       scheduledStart: job.scheduled_start as string | null,
+      scheduledEnd: (job as any).scheduled_end as string | null,
     })
   }
 

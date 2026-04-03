@@ -74,11 +74,12 @@ export default async function ProposalsPage({ searchParams }: { searchParams: { 
                 <th className="text-left py-3 px-4 font-medium text-gray-600 hidden sm:table-cell">Total</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600 hidden lg:table-cell">Date</th>
+                <th className="py-3 px-4" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {proposals.map((p: any) => (
-                <tr key={p.id} className="hover:bg-gray-50 cursor-pointer">
+                <tr key={p.id} className="hover:bg-gray-50">
                   <td className="py-3 px-4">
                     <Link href={`/dashboard/proposals/${p.id}`} className="block font-mono text-xs text-gray-500">{p.proposal_number}</Link>
                   </td>
@@ -91,6 +92,16 @@ export default async function ProposalsPage({ searchParams }: { searchParams: { 
                   <td className="py-3 px-4 font-medium text-gray-900 hidden sm:table-cell">{formatCurrency(p.total)}</td>
                   <td className="py-3 px-4"><StatusBadge status={p.status} /></td>
                   <td className="py-3 px-4 text-gray-500 text-xs hidden lg:table-cell">{formatDate(p.created_at)}</td>
+                  <td className="py-3 px-4 text-right">
+                    {!['signed'].includes(p.status) && (
+                      <Link
+                        href={`/dashboard/proposals/${p.id}/edit`}
+                        className="text-xs text-gray-400 hover:text-brand transition-colors px-2 py-1 rounded hover:bg-brand/5"
+                      >
+                        Edit
+                      </Link>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

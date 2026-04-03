@@ -1,225 +1,208 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import Link from 'next/link'
-import { resolveJobStatus } from '@/lib/utils'
+import { useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import type { EventClickArg, EventInput, EventDropArg } from '@fullcalendar/core'
+import type { EventResizeDoneArg } from '@fullcalendar/interaction'
 
 interface CalEvent {
   id: string
   type: 'job' | 'invoice'
   title: string
-  date: string // ISO date string (YYYY-MM-DD)
+  date: string
   status: string
   href: string
   customerName?: string
   scheduledStart?: string | null
+  scheduledEnd?: string | null
 }
 
-interface Props {
+interface CalendarGridProps {
   events: CalEvent[]
   initialYear: number
-  initialMonth: number // 0-indexed
+  initialMonth: number
 }
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const DAYS_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-]
-
-function eventColor(type: 'job' | 'invoice', status: string) {
-  if (type === 'invoice') {
-    if (status === 'paid') return 'bg-green-100 text-green-800 border-green-200'
-    if (status === 'overdue') return 'bg-red-100 text-red-800 border-red-200'
-    return 'bg-blue-100 text-blue-800 border-blue-200'
+function jobColor(status: string): string {
+  switch (status) {
+    case 'in_progress':
+    case 'en_route':
+      return '#E86C3A'
+    case 'complete':
+    case 'invoiced':
+    case 'paid':
+      return '#6b7280'
+    case 'cancelled':
+      return '#ef4444'
+    default:
+      return '#3b82f6'
   }
-  // job
-  if (status === 'complete' || status === 'invoiced' || status === 'paid') {
-    return 'bg-gray-100 text-gray-600 border-gray-200'
-  }
-  if (status === 'in_progress' || status === 'en_route') {
-    return 'bg-amber-100 text-amber-800 border-amber-200'
-  }
-  return 'bg-brand/10 text-brand border-brand/20'
 }
 
-export function CalendarGrid({ events, initialYear, initialMonth }: Props) {
-  const [year, setYear] = useState(initialYear)
-  const [month, setMonth] = useState(initialMonth)
-
-  function prevMonth() {
-    if (month === 0) { setMonth(11); setYear(y => y - 1) }
-    else setMonth(m => m - 1)
+function invoiceColor(status: string): string {
+  switch (status) {
+    case 'paid':
+      return '#10b981'
+    case 'overdue':
+      return '#ef4444'
+    default:
+      return '#6366f1'
   }
-  function nextMonth() {
-    if (month === 11) { setMonth(0); setYear(y => y + 1) }
-    else setMonth(m => m + 1)
-  }
-  function goToday() {
-    const now = new Date()
-    setYear(now.getFullYear())
-    setMonth(now.getMonth())
-  }
+}
 
-  // Build calendar days
-  const firstDay = new Date(year, month, 1)
-  const lastDay = new Date(year, month + 1, 0)
-  const startDow = firstDay.getDay() // 0 = Sun
-  const totalDays = lastDay.getDate()
+export function CalendarGrid({ events, initialYear, initialMonth }: CalendarGridProps) {
+  const router = useRouter()
+  const calRef = useRef<FullCalendar>(null)
 
-  // Pad before
-  const leadingBlanks = startDow
-  // Pad after to complete the last row
-  const totalCells = Math.ceil((leadingBlanks + totalDays) / 7) * 7
+  const fcEvents: EventInput[] = events.map((ev) => {
+    const isJob = ev.type === 'job'
+    const color = isJob ? jobColor(ev.status) : invoiceColor(ev.status)
+    const start = isJob && ev.scheduledStart ? ev.scheduledStart : ev.date
+    const end = isJob && ev.scheduledEnd ? ev.scheduledEnd : undefined
+    const allDay = isJob ? !ev.scheduledStart?.includes('T') : true
+    const displayTitle = ev.customerName
+      ? `${ev.customerName} — ${ev.title}`
+      : ev.title
 
-  const today = new Date()
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-
-  // Group events by date
-  const eventsByDate = useMemo(() => {
-    const map: Record<string, CalEvent[]> = {}
-    for (const ev of events) {
-      const d = ev.date?.slice(0, 10)
-      if (!d) continue
-      // Only show events in current month view (plus neighboring cells)
-      if (!map[d]) map[d] = []
-      map[d].push(ev)
+    return {
+      id: ev.id,
+      title: displayTitle,
+      start,
+      end,
+      allDay,
+      backgroundColor: color,
+      borderColor: color,
+      textColor: '#ffffff',
+      editable: isJob,
+      extendedProps: { type: ev.type, href: ev.href, status: ev.status },
     }
-    return map
-  }, [events])
+  })
 
-  const cells: Array<{ day: number | null; dateStr: string | null }> = []
-  for (let i = 0; i < totalCells; i++) {
-    const dayNum = i - leadingBlanks + 1
-    if (dayNum < 1 || dayNum > totalDays) {
-      cells.push({ day: null, dateStr: null })
-    } else {
-      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`
-      cells.push({ day: dayNum, dateStr })
+  const handleEventClick = useCallback(
+    (info: EventClickArg) => {
+      info.jsEvent.preventDefault()
+      const href = info.event.extendedProps.href as string
+      if (href) router.push(href)
+    },
+    [router]
+  )
+
+  const patchJob = useCallback(async (
+    jobId: string,
+    newStart: string,
+    newEnd: string | null,
+    revert: () => void
+  ) => {
+    try {
+      const res = await fetch(`/api/jobs/${jobId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduled_start: newStart, scheduled_end: newEnd }),
+      })
+      if (!res.ok) revert()
+    } catch {
+      revert()
     }
-  }
+  }, [])
+
+  const handleEventDrop = useCallback(
+    (info: EventDropArg) => {
+      const newStart = info.event.start?.toISOString()
+      if (!newStart) { info.revert(); return }
+      patchJob(info.event.id, newStart, info.event.end?.toISOString() ?? null, info.revert)
+    },
+    [patchJob]
+  )
+
+  const handleEventResize = useCallback(
+    (info: EventResizeDoneArg) => {
+      const newStart = info.event.start?.toISOString()
+      if (!newStart) { info.revert(); return }
+      patchJob(info.event.id, newStart, info.event.end?.toISOString() ?? null, info.revert)
+    },
+    [patchJob]
+  )
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>
-            {MONTHS[month]} {year}
-          </h2>
-          <button
-            onClick={goToday}
-            className="text-xs px-3 py-2 sm:px-2.5 sm:py-1 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
-          >
-            Today
-          </button>
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={prevMonth}
-            className="p-2.5 sm:p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-            aria-label="Previous month"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={nextMonth}
-            className="p-2.5 sm:p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-            aria-label="Next month"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+    <>
+      <style>{`
+        .fc { font-family: inherit; }
+        .fc .fc-toolbar-title { font-size: 1.1rem; font-weight: 700; color: #111827; }
+        .fc .fc-button {
+          background: #ffffff; border: 1px solid #d1d5db; color: #374151;
+          font-size: 0.8rem; font-weight: 500; padding: 5px 12px;
+          border-radius: 6px; box-shadow: none; text-transform: capitalize;
+        }
+        .fc .fc-button:hover { background: #f9fafb; border-color: #9ca3af; }
+        .fc .fc-button:focus { box-shadow: 0 0 0 2px rgba(232,108,58,0.3); }
+        .fc .fc-button-primary:not(:disabled).fc-button-active,
+        .fc .fc-button-primary:not(:disabled):active {
+          background: #E86C3A !important; border-color: #E86C3A !important; color: #fff !important;
+        }
+        .fc .fc-button-group .fc-button { border-radius: 0; }
+        .fc .fc-button-group .fc-button:first-child { border-radius: 6px 0 0 6px; }
+        .fc .fc-button-group .fc-button:last-child { border-radius: 0 6px 6px 0; }
+        .fc .fc-col-header-cell {
+          background: #f9fafb; font-size: 0.75rem; font-weight: 600;
+          text-transform: uppercase; letter-spacing: 0.04em; color: #6b7280; padding: 8px 0;
+        }
+        .fc .fc-daygrid-day-number { font-size: 0.8rem; color: #6b7280; padding: 4px 6px; }
+        .fc .fc-day-today { background: rgba(232,108,58,0.04) !important; }
+        .fc .fc-day-today .fc-daygrid-day-number {
+          background: #E86C3A; color: #fff; border-radius: 50%;
+          width: 24px; height: 24px; display: inline-flex;
+          align-items: center; justify-content: center; font-weight: 700;
+        }
+        .fc .fc-event { cursor: pointer; font-size: 0.75rem; font-weight: 500; border-radius: 5px; }
+        .fc .fc-timegrid-event .fc-event-main { padding: 2px 5px; }
+        .fc .fc-timegrid-event-harness { margin: 0 1px; }
+        .fc-direction-ltr .fc-daygrid-event.fc-event-end { margin-right: 2px; }
+        .fc-direction-ltr .fc-daygrid-event.fc-event-start { margin-left: 2px; }
+        .fc-v-event { border-radius: 5px; }
+        .fc .fc-timegrid-axis-cushion { font-size: 0.7rem; color: #9ca3af; }
+        .fc .fc-scrollgrid { border-color: #e5e7eb; }
+        .fc .fc-scrollgrid td, .fc .fc-scrollgrid th { border-color: #e5e7eb; }
+        .fc .fc-now-indicator-line { border-color: #E86C3A; }
+        .fc .fc-now-indicator-arrow { border-top-color: #E86C3A; border-bottom-color: #E86C3A; }
+      `}</style>
+
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" style={{ height: 'calc(100vh - 200px)', minHeight: '500px' }}>
+        <div className="p-4 h-full">
+          <FullCalendar
+            ref={calRef}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            initialDate={new Date(initialYear, initialMonth, 1)}
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay',
+            }}
+            buttonText={{ today: 'Today', month: 'Month', week: 'Week', day: 'Day' }}
+            height="100%"
+            events={fcEvents}
+            editable={true}
+            droppable={false}
+            eventResizableFromStart={true}
+            eventDurationEditable={true}
+            snapDuration="00:15:00"
+            slotDuration="00:30:00"
+            slotMinTime="06:00:00"
+            slotMaxTime="21:00:00"
+            allDaySlot={true}
+            nowIndicator={true}
+            dayMaxEvents={3}
+            eventClick={handleEventClick}
+            eventDrop={handleEventDrop}
+            eventResize={handleEventResize}
+            eventInteractive={true}
+          />
         </div>
       </div>
-
-      {/* Legend */}
-      <div className="flex items-center gap-3 sm:gap-4 mb-4 text-xs text-gray-500 flex-wrap">
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm bg-brand/10 border border-brand/20 inline-block" />
-          Job
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm bg-blue-100 border border-blue-200 inline-block" />
-          Invoice due
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm bg-red-100 border border-red-200 inline-block" />
-          Overdue
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm bg-green-100 border border-green-200 inline-block" />
-          Paid
-        </div>
-      </div>
-
-      {/* Day-of-week headers */}
-      <div className="overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
-      <div className="grid grid-cols-7 border-l border-t border-gray-200 min-w-[500px] sm:min-w-0">
-        {DAYS.map((d, i) => (
-          <div
-            key={d}
-            className="py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide border-r border-b border-gray-200 bg-gray-50"
-          >
-            <span className="hidden sm:inline">{d}</span>
-            <span className="sm:hidden">{DAYS_SHORT[i]}</span>
-          </div>
-        ))}
-
-        {/* Day cells */}
-        {cells.map((cell, idx) => {
-          const isToday = cell.dateStr === todayStr
-          const dayEvents = cell.dateStr ? (eventsByDate[cell.dateStr] ?? []) : []
-
-          return (
-            <div
-              key={idx}
-              className={`border-r border-b border-gray-200 min-h-[70px] sm:min-h-[100px] p-1 sm:p-1.5 ${
-                cell.day ? 'bg-white' : 'bg-gray-50/50'
-              }`}
-            >
-              {cell.day !== null && (
-                <>
-                  <div
-                    className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium mb-1 ${
-                      isToday
-                        ? 'bg-brand text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    {cell.day}
-                  </div>
-                  <div className="space-y-0.5">
-                    {dayEvents.slice(0, 3).map((ev) => (
-                      <Link
-                        key={ev.id}
-                        href={ev.href}
-                        className={`block text-xs px-1.5 py-0.5 rounded border truncate hover:opacity-80 transition-opacity ${eventColor(ev.type, ev.status)}`}
-                        title={`${ev.type === 'invoice' ? 'INV Due: ' : ''}${ev.title}${ev.customerName ? ` — ${ev.customerName}` : ''}`}
-                      >
-                        {ev.type === 'invoice' && (
-                          <span className="font-semibold mr-1">$</span>
-                        )}
-                        {ev.title}
-                      </Link>
-                    ))}
-                    {dayEvents.length > 3 && (
-                      <div className="text-xs text-gray-400 pl-1.5">
-                        +{dayEvents.length - 3} more
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          )
-        })}
-      </div>
-      </div>
-    </div>
+    </>
   )
 }
