@@ -2,8 +2,9 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { SidebarNav } from '@/components/dashboard/SidebarNav'
 import { MobileNav } from '@/components/dashboard/MobileNav'
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode; params?: any }) {
   const supabase = await createServerSupabaseClient()
   const {
     data: { user },
@@ -13,12 +14,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: userData } = await supabase
     .from('users')
-    .select('id, full_name, role, company_id, companies(id, name, primary_color, logo_url, google_review_url)')
+    .select('id, full_name, role, company_id, companies(id, name, phone, email, primary_color, logo_url, google_review_url)')
     .eq('id', user.id)
     .single()
 
   const company = userData?.companies as any
   const primaryColor: string = company?.primary_color || '#E86C3A'
+
+  // Determine if onboarding is needed:
+  // - Company name is null, empty, or the default placeholder
+  // - And the user is an owner or admin (techs don't onboard)
+  const needsOnboarding =
+    ['owner', 'admin'].includes(userData?.role ?? '') &&
+    (!company?.name || company.name === 'My Company')
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -45,7 +53,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </div>
 
       {/* Mobile bottom nav */}
-      <MobileNav />
+      <MobileNav userRole={userData?.role} />
+
+      {/* Onboarding wizard overlay */}
+      {needsOnboarding && (
+        <OnboardingWizard
+          company={{
+            id: company?.id ?? '',
+            name: company?.name ?? null,
+            phone: company?.phone ?? null,
+            email: company?.email ?? null,
+            logo_url: company?.logo_url ?? null,
+            primary_color: company?.primary_color ?? null,
+          }}
+        />
+      )}
     </div>
   )
 }

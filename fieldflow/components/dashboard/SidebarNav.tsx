@@ -159,20 +159,28 @@ function SignOutIcon() {
   )
 }
 
-const navItems: NavItem[] = [
+const allNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: <DashboardIcon /> },
   { label: 'Calendar', href: '/dashboard/calendar', icon: <CalendarIcon /> },
   { label: 'Jobs', href: '/dashboard/jobs', icon: <JobsIcon /> },
   { label: 'Invoices', href: '/dashboard/invoices', icon: <InvoicesIcon /> },
   { label: 'Customers', href: '/dashboard/customers', icon: <CustomersIcon /> },
-  { label: 'Proposals', href: '/dashboard/proposals', icon: <ProposalsIcon /> },
+  { label: 'Estimates', href: '/dashboard/proposals', icon: <ProposalsIcon /> },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: <PlaybooksIcon /> },
+  { label: 'Settings', href: '/dashboard/settings', icon: <SettingsIcon /> },
+]
+
+const techNavItems: NavItem[] = [
+  { label: 'My Jobs', href: '/dashboard/jobs', icon: <JobsIcon /> },
   { label: 'Settings', href: '/dashboard/settings', icon: <SettingsIcon /> },
 ]
 
 export function SidebarNav({ user, company, primaryColor }: SidebarNavProps) {
   const pathname = usePathname()
   const router = useRouter()
+
+  const isTech = user?.role === 'tech'
+  const navItems = isTech ? techNavItems : allNavItems
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard'
@@ -201,19 +209,21 @@ export function SidebarNav({ user, company, primaryColor }: SidebarNavProps) {
         </span>
       </div>
 
-      {/* New Job CTA */}
-      <div className="px-3 pb-3">
-        <Link
-          href="/dashboard/jobs/new"
-          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-colors"
-          style={{ backgroundColor: primaryColor }}
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
-          New Job
-        </Link>
-      </div>
+      {/* New Job CTA — hidden for techs */}
+      {!isTech && (
+        <div className="px-3 pb-3">
+          <Link
+            href="/dashboard/jobs/new"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-colors"
+            style={{ backgroundColor: primaryColor }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+            New Job
+          </Link>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">

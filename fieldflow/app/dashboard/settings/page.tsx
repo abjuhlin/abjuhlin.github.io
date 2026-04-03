@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { Modal } from '@/components/ui/Modal'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 type Tab = 'company' | 'reviews' | 'team' | 'notifications' | 'demo'
 
@@ -83,6 +84,7 @@ export default function SettingsPage() {
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null)
   const [editForm, setEditForm] = useState({ role: 'tech' as 'owner' | 'admin' | 'tech', phone: '' })
   const [editSaving, setEditSaving] = useState(false)
+  const [removingMember, setRemovingMember] = useState<TeamMember | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -294,7 +296,6 @@ export default function SettingsPage() {
   }
 
   async function removeMember(member: TeamMember) {
-    if (!window.confirm(`Remove ${member.full_name} from your team?`)) return
     try {
       const res = await fetch(`/api/team/${member.id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error((await res.json()).error || 'Remove failed')
@@ -463,7 +464,7 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <label className="label" htmlFor="proposal-footer">Default Proposal Terms / Footer</label>
+            <label className="label" htmlFor="proposal-footer">Default Estimate Terms / Footer</label>
             <textarea
               id="proposal-footer"
               className="input resize-y"
@@ -599,7 +600,7 @@ export default function SettingsPage() {
                           </button>
                           {member.id !== currentUserId && (
                             <button
-                              onClick={() => removeMember(member)}
+                              onClick={() => setRemovingMember(member)}
                               className="text-xs text-red-500 hover:text-red-700 transition-colors"
                             >
                               Remove
@@ -850,6 +851,19 @@ export default function SettingsPage() {
           </div>
         </form>
       </Modal>
+
+      {/* Remove Member Confirmation */}
+      <ConfirmDialog
+        open={!!removingMember}
+        onClose={() => setRemovingMember(null)}
+        onConfirm={() => {
+          if (removingMember) removeMember(removingMember)
+        }}
+        title="Remove Team Member"
+        message={removingMember ? `Are you sure you want to remove ${removingMember.full_name} from your team? They will lose access to your workspace.` : ''}
+        confirmText="Remove"
+        confirmVariant="danger"
+      />
     </div>
   )
 }

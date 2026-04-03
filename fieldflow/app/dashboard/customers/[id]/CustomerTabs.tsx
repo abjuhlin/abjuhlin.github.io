@@ -262,19 +262,19 @@ function ProposalsTab({
     <div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-gray-500">
-          {proposals.length} {proposals.length === 1 ? 'proposal' : 'proposals'}
+          {proposals.length} {proposals.length === 1 ? 'estimate' : 'estimates'}
         </p>
         <Link
           href={`/dashboard/proposals/new?customer=${customerId}`}
           className="btn-primary text-sm"
         >
-          New Proposal
+          New Estimate
         </Link>
       </div>
 
       {proposals.length === 0 ? (
         <div className="card p-10 text-center text-gray-500 text-sm">
-          No proposals yet.{' '}
+          No estimates yet.{' '}
           <Link
             href={`/dashboard/proposals/new?customer=${customerId}`}
             className="text-brand hover:underline"
@@ -484,7 +484,7 @@ function InvoicesTab({ invoices }: { invoices: Invoice[] }) {
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'overview', label: 'Overview' },
-  { key: 'proposals', label: 'Proposals' },
+  { key: 'proposals', label: 'Estimates' },
   { key: 'jobs', label: 'Jobs' },
   { key: 'invoices', label: 'Invoices' },
 ]

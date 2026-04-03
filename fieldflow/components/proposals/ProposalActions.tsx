@@ -28,7 +28,7 @@ export function ProposalActions({ proposalId, status, hasJob }: { proposalId: st
   if (status === 'draft') return (
     <div className="space-y-2">
       <Link href={`/dashboard/proposals/${proposalId}/edit`} className="btn-secondary w-full text-center">
-        Edit Proposal
+        Edit Estimate
       </Link>
       <button onClick={() => call(`/api/proposals/${proposalId}/send`, 'POST', 'send')} disabled={loading === 'send'} className="btn-primary w-full">
         {loading === 'send' ? 'Sending...' : 'Send to Client'}

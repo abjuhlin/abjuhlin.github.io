@@ -105,15 +105,15 @@ export default function NewProposalPage() {
         status: 'draft',
       }
       const res = await fetch('/api/proposals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      if (!res.ok) throw new Error((await res.json()).error || 'Failed to create proposal')
+      if (!res.ok) throw new Error((await res.json()).error || 'Failed to create estimate')
       const proposal = await res.json()
 
       if (send) {
         const sendRes = await fetch(`/api/proposals/${proposal.id}/send`, { method: 'POST' })
-        if (!sendRes.ok) toast.error('Proposal created but SMS failed to send')
-        else toast.success('Proposal sent!')
+        if (!sendRes.ok) toast.error('Estimate created but SMS failed to send')
+        else toast.success('Estimate sent!')
       } else {
-        toast.success('Proposal saved as draft')
+        toast.success('Estimate saved as draft')
       }
       router.push(`/dashboard/proposals/${proposal.id}`)
     } catch (e: any) {
@@ -126,7 +126,7 @@ export default function NewProposalPage() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>New Proposal</h1>
+        <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>New Estimate</h1>
       </div>
 
       {/* Step progress */}
@@ -196,9 +196,9 @@ export default function NewProposalPage() {
         {/* Step 1: Details */}
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900">Proposal Details</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Estimate Details</h2>
             <div>
-              <label className="label">Proposal Title *</label>
+              <label className="label">Estimate Title *</label>
               <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. HVAC Tune-Up and Filter Replacement" className="input" />
             </div>
             <div>
@@ -292,7 +292,7 @@ export default function NewProposalPage() {
             <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
               <div>
                 <div className="font-medium text-gray-900">Require deposit at signing</div>
-                <div className="text-sm text-gray-500">Client must pay a deposit when they sign the proposal</div>
+                <div className="text-sm text-gray-500">Client must pay a deposit when they sign the estimate</div>
               </div>
               <button
                 onClick={() => setDepositRequired(!depositRequired)}

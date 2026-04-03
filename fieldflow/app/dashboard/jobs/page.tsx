@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { JobsViewToggle } from '@/components/jobs/JobsViewToggle'
+import { SearchInput } from '@/components/ui/SearchInput'
 
 const STATUS_FILTERS: { value: string; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -18,7 +19,7 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
 export default async function JobsPage({
   searchParams,
 }: {
-  searchParams: { status?: string; view?: string }
+  searchParams: { status?: string; view?: string; q?: string }
 }) {
   const supabase = await createServerSupabaseClient()
   const {
@@ -35,6 +36,7 @@ export default async function JobsPage({
   if (!userData) redirect('/login')
 
   const activeStatus = searchParams.status || 'all'
+  const searchQuery = searchParams.q?.trim() || ''
 
   let query = supabase
     .from('jobs')
@@ -50,12 +52,27 @@ export default async function JobsPage({
     query = query.eq('status', activeStatus)
   }
 
+  // Server-side search: filter by title, job_number, or customer name
+  if (searchQuery) {
+    const pattern = `%${searchQuery}%`
+    query = query.or(`title.ilike.${pattern},job_number.ilike.${pattern},customers.full_name.ilike.${pattern}`)
+  }
+
   const { data: jobs } = await query
+
+  // Build filter tab hrefs that preserve the search query
+  function filterHref(statusValue: string) {
+    const params = new URLSearchParams()
+    if (statusValue !== 'all') params.set('status', statusValue)
+    if (searchQuery) params.set('q', searchQuery)
+    const qs = params.toString()
+    return qs ? `/dashboard/jobs?${qs}` : '/dashboard/jobs'
+  }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>
+      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>
           Jobs
         </h1>
         <Link href="/dashboard/jobs/new" className="btn-primary">
@@ -66,12 +83,17 @@ export default async function JobsPage({
         </Link>
       </div>
 
+      {/* Search */}
+      <div className="mb-4">
+        <SearchInput placeholder="Search by job title, number, or customer..." />
+      </div>
+
       {/* Filter tabs */}
       <div className="flex gap-1 mb-4 overflow-x-auto pb-1">
         {STATUS_FILTERS.map(({ value, label }) => (
           <Link
             key={value}
-            href={value === 'all' ? '/dashboard/jobs' : `/dashboard/jobs?status=${value}`}
+            href={filterHref(value)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               activeStatus === value
                 ? 'bg-brand text-white'

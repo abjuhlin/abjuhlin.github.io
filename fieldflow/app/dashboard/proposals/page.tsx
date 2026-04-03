@@ -31,13 +31,13 @@ export default async function ProposalsPage({ searchParams }: { searchParams: { 
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>Proposals</h1>
+      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>Estimates</h1>
         <Link href="/dashboard/proposals/new" className="btn-primary">
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          New Proposal
+          New Estimate
         </Link>
       </div>
 
@@ -58,12 +58,13 @@ export default async function ProposalsPage({ searchParams }: { searchParams: { 
       {!proposals || proposals.length === 0 ? (
         <EmptyState
           icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
-          title="No proposals yet"
-          description="Create your first proposal to start sending quotes to clients."
-          action={<Link href="/dashboard/proposals/new" className="btn-primary">Create your first proposal</Link>}
+          title="No estimates yet"
+          description="Create your first estimate to start sending quotes to clients."
+          action={<Link href="/dashboard/proposals/new" className="btn-primary">Create your first estimate</Link>}
         />
       ) : (
         <div className="card overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -94,6 +95,7 @@ export default async function ProposalsPage({ searchParams }: { searchParams: { 
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

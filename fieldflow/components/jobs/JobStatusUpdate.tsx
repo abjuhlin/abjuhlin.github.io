@@ -8,6 +8,7 @@ const STATUS_FLOW = ['scheduled', 'en_route', 'in_progress', 'complete'] as cons
 export function JobStatusUpdate({ jobId, currentStatus }: { jobId: string; currentStatus: string }) {
   const [loading, setLoading] = useState(false)
   const [invoiceLoading, setInvoiceLoading] = useState(false)
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
   const router = useRouter()
 
   const currentIdx = STATUS_FLOW.indexOf(currentStatus as (typeof STATUS_FLOW)[number])
@@ -23,7 +24,15 @@ export function JobStatusUpdate({ jobId, currentStatus }: { jobId: string; curre
 
   const advance = async () => {
     if (!nextStatus) return
+
+    // Confirmation step before completing
+    if (nextStatus === 'complete' && !showCompleteConfirm) {
+      setShowCompleteConfirm(true)
+      return
+    }
+
     setLoading(true)
+    setShowCompleteConfirm(false)
     try {
       const res = await fetch(`/api/jobs/${jobId}`, {
         method: 'PATCH',
@@ -35,8 +44,8 @@ export function JobStatusUpdate({ jobId, currentStatus }: { jobId: string; curre
         throw new Error(data.error || 'Failed to update status')
       }
       if (nextStatus === 'complete') {
-        toast.success('Job complete! Creating invoice...')
-        await createInvoice()
+        toast.success('Job marked complete!')
+        router.refresh()
       } else {
         toast.success(`Status updated to ${nextStatus.replace('_', ' ')}`)
         router.refresh()
@@ -97,11 +106,28 @@ export function JobStatusUpdate({ jobId, currentStatus }: { jobId: string; curre
 
   return (
     <div className="space-y-3">
-      {nextStatus && (
+      {showCompleteConfirm ? (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
+          <p className="text-sm font-medium text-amber-900">
+            Mark this job as complete?
+          </p>
+          <p className="text-xs text-amber-700">
+            You can create an invoice from the completed job afterward.
+          </p>
+          <div className="flex gap-2">
+            <button onClick={advance} disabled={loading} className="btn-primary text-sm flex-1">
+              {loading ? 'Completing...' : 'Yes, Complete Job'}
+            </button>
+            <button onClick={() => setShowCompleteConfirm(false)} className="btn-secondary text-sm flex-1">
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : nextStatus ? (
         <button onClick={advance} disabled={loading} className="btn-primary w-full">
           {loading ? 'Updating...' : labels[currentStatus] || 'Update Status'}
         </button>
-      )}
+      ) : null}
     </div>
   )
 }

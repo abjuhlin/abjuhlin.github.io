@@ -22,6 +22,7 @@ interface Props {
 }
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const DAYS_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December',
@@ -109,7 +110,7 @@ export function CalendarGrid({ events, initialYear, initialMonth }: Props) {
           </h2>
           <button
             onClick={goToday}
-            className="text-xs px-2.5 py-1 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+            className="text-xs px-3 py-2 sm:px-2.5 sm:py-1 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
           >
             Today
           </button>
@@ -117,7 +118,7 @@ export function CalendarGrid({ events, initialYear, initialMonth }: Props) {
         <div className="flex items-center gap-1">
           <button
             onClick={prevMonth}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+            className="p-2.5 sm:p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700"
             aria-label="Previous month"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -126,7 +127,7 @@ export function CalendarGrid({ events, initialYear, initialMonth }: Props) {
           </button>
           <button
             onClick={nextMonth}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+            className="p-2.5 sm:p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700"
             aria-label="Next month"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -137,7 +138,7 @@ export function CalendarGrid({ events, initialYear, initialMonth }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
+      <div className="flex items-center gap-3 sm:gap-4 mb-4 text-xs text-gray-500 flex-wrap">
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-sm bg-brand/10 border border-brand/20 inline-block" />
           Job
@@ -157,13 +158,15 @@ export function CalendarGrid({ events, initialYear, initialMonth }: Props) {
       </div>
 
       {/* Day-of-week headers */}
-      <div className="grid grid-cols-7 border-l border-t border-gray-200">
-        {DAYS.map((d) => (
+      <div className="overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
+      <div className="grid grid-cols-7 border-l border-t border-gray-200 min-w-[500px] sm:min-w-0">
+        {DAYS.map((d, i) => (
           <div
             key={d}
             className="py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide border-r border-b border-gray-200 bg-gray-50"
           >
-            {d}
+            <span className="hidden sm:inline">{d}</span>
+            <span className="sm:hidden">{DAYS_SHORT[i]}</span>
           </div>
         ))}
 
@@ -175,7 +178,7 @@ export function CalendarGrid({ events, initialYear, initialMonth }: Props) {
           return (
             <div
               key={idx}
-              className={`border-r border-b border-gray-200 min-h-[100px] p-1.5 ${
+              className={`border-r border-b border-gray-200 min-h-[70px] sm:min-h-[100px] p-1 sm:p-1.5 ${
                 cell.day ? 'bg-white' : 'bg-gray-50/50'
               }`}
             >
@@ -215,6 +218,7 @@ export function CalendarGrid({ events, initialYear, initialMonth }: Props) {
             </div>
           )
         })}
+      </div>
       </div>
     </div>
   )

@@ -8,13 +8,13 @@ export const metadata: Metadata = {
     template: '%s | FieldFlow',
   },
   description:
-    'FieldFlow helps HVAC, plumbing, and electrical businesses manage proposals, jobs, invoices, and customer communications — all in one place.',
+    'FieldFlow helps HVAC, plumbing, and electrical businesses manage estimates, jobs, invoices, and customer communications — all in one place.',
   keywords: ['field service', 'HVAC', 'plumbing', 'electrical', 'job management', 'invoicing'],
   authors: [{ name: 'FieldFlow' }],
   openGraph: {
     title: 'FieldFlow — Field Service Management',
     description:
-      'Manage proposals, jobs, invoices, and customer communications for your field service business.',
+      'Manage estimates, jobs, invoices, and customer communications for your field service business.',
     type: 'website',
   },
 }

@@ -146,7 +146,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
       try {
         const res = await fetch(`/api/proposals/${params.id}/public`)
         if (!res.ok) {
-          setError('This proposal could not be found or has expired.')
+          setError('This estimate could not be found or has expired.')
           return
         }
         const data = await res.json()
@@ -157,7 +157,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
           fetch(`/api/proposals/${params.id}/view`, { method: 'POST' }).catch(() => {})
         }
       } catch {
-        setError('Failed to load proposal.')
+        setError('Failed to load estimate.')
       } finally {
         setLoading(false)
       }
@@ -192,7 +192,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <p className="text-gray-500 text-sm">Loading proposal...</p>
+          <p className="text-gray-500 text-sm">Loading estimate...</p>
         </div>
       </div>
     )
@@ -207,7 +207,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Proposal Not Found</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Estimate Not Found</h2>
           <p className="text-gray-500">{error}</p>
         </div>
       </div>
@@ -248,7 +248,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              This proposal has been signed
+              This estimate has been signed
             </div>
             {proposal.signed_at && (
               <p className="text-green-600 text-sm mt-1">on {formatDate(proposal.signed_at)}</p>
@@ -258,13 +258,13 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
 
         {proposal.status === 'declined' && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-center">
-            <p className="text-red-700 font-medium">This proposal has been declined.</p>
+            <p className="text-red-700 font-medium">This estimate has been declined.</p>
           </div>
         )}
 
         {proposal.status === 'expired' && (
           <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl text-center">
-            <p className="text-orange-700 font-medium">This proposal has expired.</p>
+            <p className="text-orange-700 font-medium">This estimate has expired.</p>
           </div>
         )}
 
@@ -285,7 +285,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
                     {proposal.title}
                   </h1>
                   <p className="text-sm text-gray-500">
-                    Proposal {proposal.proposal_number} &middot; For {proposal.customers?.full_name}
+                    Estimate {proposal.proposal_number} &middot; For {proposal.customers?.full_name}
                   </p>
                 </div>
               </div>
@@ -367,7 +367,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
           {/* Signature section */}
           {!isAlreadySigned && !signed && (
             <div className="border-t border-gray-200 p-8 space-y-5 bg-gray-50">
-              <h3 className="text-base font-semibold text-gray-900">Sign this Proposal</h3>
+              <h3 className="text-base font-semibold text-gray-900">Sign this Estimate</h3>
 
               <SignatureCanvas onSign={setSignature} />
 
@@ -379,7 +379,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
                   className="mt-0.5 rounded border-gray-300"
                 />
                 <span className="text-sm text-gray-600">
-                  I have read and agree to the terms of this proposal. I understand that signing this proposal
+                  I have read and agree to the terms of this estimate. I understand that signing this estimate
                   constitutes a legal agreement to proceed with the work described above.
                 </span>
               </label>
@@ -396,7 +396,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
                 className="w-full py-3 rounded-xl font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ backgroundColor: brandColor }}
               >
-                {signing ? 'Signing...' : 'Sign Proposal'}
+                {signing ? 'Signing...' : 'Sign Estimate'}
               </button>
             </div>
           )}
@@ -409,7 +409,7 @@ export default function PublicProposalPage({ params }: { params: { id: string } 
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-green-900 mb-2">Proposal Signed!</h3>
+              <h3 className="text-lg font-semibold text-green-900 mb-2">Estimate Signed!</h3>
               <p className="text-green-700 text-sm">
                 Thank you, {proposal.customers?.full_name}. The team will be in touch shortly about your deposit.
               </p>

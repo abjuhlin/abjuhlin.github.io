@@ -4,16 +4,18 @@ import Link from 'next/link'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { SearchInput } from '@/components/ui/SearchInput'
 
 const STATUS_FILTERS = ['all', 'draft', 'sent', 'paid', 'overdue', 'void']
 
-export default async function InvoicesPage({ searchParams }: { searchParams: { status?: string } }) {
+export default async function InvoicesPage({ searchParams }: { searchParams: { status?: string; q?: string } }) {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: userData } = await supabase.from('users').select('company_id').eq('id', user.id).single()
   const activeStatus = searchParams.status || 'all'
+  const searchQuery = searchParams.q?.trim() || ''
 
   const now = new Date()
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
@@ -36,12 +38,28 @@ export default async function InvoicesPage({ searchParams }: { searchParams: { s
     .order('created_at', { ascending: false })
 
   if (activeStatus !== 'all') query = query.eq('status', activeStatus)
+
+  // Server-side search: filter by invoice_number or customer name
+  if (searchQuery) {
+    const pattern = `%${searchQuery}%`
+    query = query.or(`invoice_number.ilike.${pattern},customers.full_name.ilike.${pattern}`)
+  }
+
   const { data: invoices } = await query
+
+  // Build filter tab hrefs that preserve the search query
+  function filterHref(statusValue: string) {
+    const params = new URLSearchParams()
+    if (statusValue !== 'all') params.set('status', statusValue)
+    if (searchQuery) params.set('q', searchQuery)
+    const qs = params.toString()
+    return qs ? `/dashboard/invoices?${qs}` : '/dashboard/invoices'
+  }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>Invoices</h1>
+      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>Invoices</h1>
         <Link href="/dashboard/invoices/new" className="btn-primary">
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -51,7 +69,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: { s
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="card p-4">
           <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Outstanding</div>
           <div className="text-xl font-bold text-gray-900 mt-1">{formatCurrency(totalOutstanding)}</div>
@@ -66,12 +84,17 @@ export default async function InvoicesPage({ searchParams }: { searchParams: { s
         </div>
       </div>
 
+      {/* Search */}
+      <div className="mb-4">
+        <SearchInput placeholder="Search by invoice number or customer..." />
+      </div>
+
       {/* Filter tabs */}
       <div className="flex gap-1 mb-4 overflow-x-auto pb-1">
         {STATUS_FILTERS.map(s => (
           <Link
             key={s}
-            href={s === 'all' ? '/dashboard/invoices' : `/dashboard/invoices?status=${s}`}
+            href={filterHref(s)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors
               ${activeStatus === s ? 'bg-brand text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
@@ -93,6 +116,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: { s
         />
       ) : (
         <div className="card overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -131,6 +155,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: { s
               ))}
             </tbody>
           </table>
+          </div>
           <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 text-xs text-gray-500">
             {invoices.length} {invoices.length === 1 ? 'invoice' : 'invoices'}
             {activeStatus !== 'all' && ` with status "${activeStatus}"`}

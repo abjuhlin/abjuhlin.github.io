@@ -70,7 +70,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <Link href="/dashboard/proposals" className="text-sm text-gray-500 hover:text-gray-700">← Proposals</Link>
+            <Link href="/dashboard/proposals" className="text-sm text-gray-500 hover:text-gray-700">← Estimates</Link>
           </div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'DM Serif Display, serif' }}>
@@ -147,7 +147,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
                   </svg>
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-brand">Job created from this proposal</div>
+                  <div className="text-sm font-semibold text-brand">Job created from this estimate</div>
                   <div className="text-xs text-gray-500">Click to view and schedule the job →</div>
                 </div>
               </div>
@@ -253,7 +253,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
                 <div className="flex items-start gap-3 text-sm">
                   <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
                   <div>
-                    <span className="font-medium text-gray-800">Proposal signed</span>
+                    <span className="font-medium text-gray-800">Estimate signed</span>
                     <span className="text-gray-500 ml-2">{formatDateTime(proposal.signed_at)}</span>
                   </div>
                 </div>
@@ -262,7 +262,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
                 <div className="flex items-start gap-3 text-sm">
                   <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
                   <div>
-                    <span className="font-medium text-gray-800">Proposal viewed</span>
+                    <span className="font-medium text-gray-800">Estimate viewed</span>
                     <span className="text-gray-500 ml-2">{formatDateTime(proposal.viewed_at)}</span>
                   </div>
                 </div>
@@ -271,7 +271,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
                 <div className="flex items-start gap-3 text-sm">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
                   <div>
-                    <span className="font-medium text-gray-800">Proposal sent</span>
+                    <span className="font-medium text-gray-800">Estimate sent</span>
                     <span className="text-gray-500 ml-2">{formatDateTime(proposal.sent_at)}</span>
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
               <div className="flex items-start gap-3 text-sm">
                 <div className="w-2 h-2 rounded-full bg-gray-300 mt-1.5 flex-shrink-0" />
                 <div>
-                  <span className="font-medium text-gray-800">Proposal created</span>
+                  <span className="font-medium text-gray-800">Estimate created</span>
                   <span className="text-gray-500 ml-2">{formatDateTime(proposal.created_at)}</span>
                 </div>
               </div>
@@ -340,7 +340,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
             <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">Details</h2>
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-gray-500">Proposal #</dt>
+                <dt className="text-gray-500">Estimate #</dt>
                 <dd className="font-mono text-gray-700">{proposal.proposal_number}</dd>
               </div>
               <div className="flex justify-between">

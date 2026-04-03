@@ -19,18 +19,25 @@ function StatusProgressBar({ currentStatus }: { currentStatus: string }) {
     complete: 'Complete',
   }
 
+  const shortLabels: Record<string, string> = {
+    scheduled: 'Sched.',
+    en_route: 'Route',
+    in_progress: 'Active',
+    complete: 'Done',
+  }
+
   return (
-    <div className="flex items-start mb-6">
+    <div className="flex items-start mb-6 overflow-x-auto pb-1">
       {STATUS_STEPS.map((step, idx) => {
         const isDone = currentIdx > idx
         const isCurrent = currentIdx === idx
         const isLast = idx === STATUS_STEPS.length - 1
 
         return (
-          <div key={step} className="flex items-center flex-1">
+          <div key={step} className="flex items-center flex-1 min-w-0">
             <div className="flex flex-col items-center flex-shrink-0">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${
                   isCurrent
                     ? 'bg-brand border-brand text-white'
                     : isDone
@@ -39,7 +46,7 @@ function StatusProgressBar({ currentStatus }: { currentStatus: string }) {
                 }`}
               >
                 {isDone ? (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
@@ -47,11 +54,12 @@ function StatusProgressBar({ currentStatus }: { currentStatus: string }) {
                 )}
               </div>
               <span
-                className={`text-xs mt-1 font-medium whitespace-nowrap ${
+                className={`text-[10px] sm:text-xs mt-1 font-medium whitespace-nowrap ${
                   isCurrent ? 'text-brand' : isDone ? 'text-gray-600' : 'text-gray-400'
                 }`}
               >
-                {stepLabels[step]}
+                <span className="hidden sm:inline">{stepLabels[step]}</span>
+                <span className="sm:hidden">{shortLabels[step]}</span>
               </span>
             </div>
             {!isLast && (
@@ -141,7 +149,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
           <div>
             <div className="flex items-center gap-3 flex-wrap">
               <h1
-                className="text-2xl font-bold text-gray-900"
+                className="text-xl sm:text-2xl font-bold text-gray-900"
                 style={{ fontFamily: 'DM Serif Display, serif' }}
               >
                 {job.title}
@@ -150,7 +158,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
               {!['paid'].includes(job.status) && (
                 <Link
                   href={`/dashboard/jobs/${job.id}/edit`}
-                  className="text-xs px-2.5 py-1 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                  className="text-xs px-3 py-2 min-h-[44px] flex items-center rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
                 >
                   Edit
                 </Link>
@@ -251,7 +259,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
             {/* Proposal link */}
             {proposal && (
               <div>
-                <p className="label">From Proposal</p>
+                <p className="label">From Estimate</p>
                 <Link
                   href={`/dashboard/proposals/${proposal.id}`}
                   className="text-sm text-brand hover:underline font-medium"
@@ -278,7 +286,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
                       <tr>
                         <th className="text-left py-2 px-5 font-medium text-gray-600">Description</th>
                         <th className="text-right py-2 px-4 font-medium text-gray-600">Qty</th>
-                        <th className="text-right py-2 px-4 font-medium text-gray-600">Price</th>
+                        <th className="text-right py-2 px-4 font-medium text-gray-600 hidden sm:table-cell">Price</th>
                         <th className="text-right py-2 px-5 font-medium text-gray-600">Total</th>
                       </tr>
                     </thead>
@@ -287,7 +295,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
                         <tr key={item.id ?? item.description}>
                           <td className="py-2 px-5 text-gray-700">{item.description}</td>
                           <td className="py-2 px-4 text-right text-gray-600">{item.quantity}</td>
-                          <td className="py-2 px-4 text-right text-gray-600">
+                          <td className="py-2 px-4 text-right text-gray-600 hidden sm:table-cell">
                             ${Number(item.unit_price).toFixed(2)}
                           </td>
                           <td className="py-2 px-5 text-right font-medium text-gray-900">
@@ -360,7 +368,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
           {proposal && (
             <div className="card p-5">
               <h2 className="font-semibold text-gray-900 text-sm uppercase tracking-wide mb-3">
-                From Proposal
+                From Estimate
               </h2>
               <Link
                 href={`/dashboard/proposals/${job.proposal_id}`}
@@ -368,7 +376,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
               >
                 <div>
                   <div className="font-mono text-sm font-semibold text-brand">{proposal.proposal_number}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">View original proposal →</div>
+                  <div className="text-xs text-gray-500 mt-0.5">View original estimate →</div>
                 </div>
                 <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

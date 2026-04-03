@@ -62,35 +62,38 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
 
   return (
     <div className="max-w-3xl mx-auto">
-      {/* Back link */}
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/dashboard/invoices" className="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </Link>
-        <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-2xl font-bold text-gray-900 font-mono">{invoice.invoice_number}</h1>
-          {job?.title && (
-            <span className="text-gray-500 font-sans font-normal text-lg">{job.title}</span>
-          )}
-          <StatusBadge status={invoice.status} />
+      {/* Back link + header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-2 sm:mb-0">
+          <Link href="/dashboard/invoices" className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </Link>
+          <div className="flex items-center gap-3 flex-wrap min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 font-mono">{invoice.invoice_number}</h1>
+            {job?.title && (
+              <span className="text-gray-500 font-sans font-normal text-base sm:text-lg truncate">{job.title}</span>
+            )}
+            <StatusBadge status={invoice.status} />
+          </div>
         </div>
-        <div className="ml-auto flex items-center gap-2">
-          {['draft', 'sent'].includes(invoice.status) && (
-            <Link href={`/dashboard/invoices/${invoice.id}/edit`} className="btn-secondary text-sm">
+        <div className="flex items-center gap-2 mt-3 sm:mt-2 ml-0 sm:ml-8 flex-wrap">
+          {['draft', 'sent', 'overdue'].includes(invoice.status) && (
+            <Link href={`/dashboard/invoices/${invoice.id}/edit`} className="btn-secondary text-sm min-h-[44px] flex items-center">
               Edit
             </Link>
           )}
           <Link
             href={`/invoice/${invoice.id}`}
             target="_blank"
-            className="btn-secondary text-sm"
+            className="btn-secondary text-sm min-h-[44px] flex items-center"
           >
-            <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 mr-1.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-            View client page
+            <span className="hidden sm:inline">View client page</span>
+            <span className="sm:hidden">Client page</span>
           </Link>
         </div>
       </div>
@@ -178,6 +181,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         {lineItems.length === 0 ? (
           <div className="px-5 py-4 text-sm text-gray-500">No line items.</div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
@@ -198,6 +202,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
               ))}
             </tbody>
           </table>
+          </div>
         )}
 
         {/* Totals */}
