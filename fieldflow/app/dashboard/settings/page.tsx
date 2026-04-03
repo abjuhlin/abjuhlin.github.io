@@ -27,9 +27,9 @@ interface TeamMember {
 }
 
 interface NotificationSettings {
-  notify_dispatch_sms: boolean
-  notify_24h_reminder: boolean
-  notify_1h_reminder: boolean
+  notify_dispatch: boolean
+  notify_reminder_24h: boolean
+  notify_reminder_1h: boolean
   notify_review_request: boolean
 }
 

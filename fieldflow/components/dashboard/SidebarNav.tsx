@@ -153,10 +153,10 @@ function SignOutIcon() {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: <DashboardIcon /> },
-  { label: 'Customers', href: '/dashboard/customers', icon: <CustomersIcon /> },
-  { label: 'Proposals', href: '/dashboard/proposals', icon: <ProposalsIcon /> },
   { label: 'Jobs', href: '/dashboard/jobs', icon: <JobsIcon /> },
   { label: 'Invoices', href: '/dashboard/invoices', icon: <InvoicesIcon /> },
+  { label: 'Customers', href: '/dashboard/customers', icon: <CustomersIcon /> },
+  { label: 'Proposals', href: '/dashboard/proposals', icon: <ProposalsIcon /> },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: <PlaybooksIcon /> },
   { label: 'Settings', href: '/dashboard/settings', icon: <SettingsIcon /> },
 ]
@@ -190,6 +190,20 @@ export function SidebarNav({ user, company, primaryColor }: SidebarNavProps) {
         >
           FieldFlow
         </span>
+      </div>
+
+      {/* New Job CTA */}
+      <div className="px-3 pb-3">
+        <Link
+          href="/dashboard/jobs/new"
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-colors"
+          style={{ backgroundColor: primaryColor }}
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          </svg>
+          New Job
+        </Link>
       </div>
 
       {/* Navigation */}

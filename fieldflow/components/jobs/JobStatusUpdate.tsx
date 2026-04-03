@@ -7,7 +7,6 @@ const STATUS_FLOW = ['scheduled', 'en_route', 'in_progress', 'complete'] as cons
 
 export function JobStatusUpdate({ jobId, currentStatus }: { jobId: string; currentStatus: string }) {
   const [loading, setLoading] = useState(false)
-  const [showInvoicePrompt, setShowInvoicePrompt] = useState(false)
   const [invoiceLoading, setInvoiceLoading] = useState(false)
   const router = useRouter()
 
@@ -35,11 +34,13 @@ export function JobStatusUpdate({ jobId, currentStatus }: { jobId: string; curre
         const data = await res.json()
         throw new Error(data.error || 'Failed to update status')
       }
-      toast.success(`Status updated to ${nextStatus.replace('_', ' ')}`)
       if (nextStatus === 'complete') {
-        setShowInvoicePrompt(true)
+        toast.success('Job complete! Creating invoice...')
+        await createInvoice()
+      } else {
+        toast.success(`Status updated to ${nextStatus.replace('_', ' ')}`)
+        router.refresh()
       }
-      router.refresh()
     } catch (e: any) {
       toast.error(e.message)
     } finally {
@@ -76,20 +77,18 @@ export function JobStatusUpdate({ jobId, currentStatus }: { jobId: string; curre
         <div className="px-3 py-2 rounded-lg bg-green-50 border border-green-200 text-sm text-green-700 font-medium text-center">
           Job complete
         </div>
-        {(currentStatus === 'complete') && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-sm font-medium text-green-900 mb-3">
-              Would you like to create an invoice for this job?
+        {currentStatus === 'complete' && (
+          <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-sm font-medium text-amber-900 mb-3">
+              Invoice not yet created
             </p>
-            <div className="flex gap-2">
-              <button
-                onClick={createInvoice}
-                disabled={invoiceLoading}
-                className="btn-primary text-sm"
-              >
-                {invoiceLoading ? 'Creating...' : 'Create invoice'}
-              </button>
-            </div>
+            <button
+              onClick={createInvoice}
+              disabled={invoiceLoading}
+              className="btn-primary w-full text-sm"
+            >
+              {invoiceLoading ? 'Creating...' : 'Create Invoice'}
+            </button>
           </div>
         )}
       </div>
