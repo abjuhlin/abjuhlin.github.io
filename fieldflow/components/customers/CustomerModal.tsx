@@ -17,6 +17,7 @@ interface CustomerFormData {
 interface CustomerModalProps {
   companyId: string
   customerId?: string
+  initialName?: string
   onClose: () => void
   onSuccess: (newCustomer?: any) => void
 }
@@ -42,8 +43,11 @@ function validateEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-export function CustomerModal({ companyId, customerId, onClose, onSuccess }: CustomerModalProps) {
-  const [form, setForm] = useState<CustomerFormData>(INITIAL_FORM)
+export function CustomerModal({ companyId, customerId, initialName, onClose, onSuccess }: CustomerModalProps) {
+  const [form, setForm] = useState<CustomerFormData>(() => ({
+    ...INITIAL_FORM,
+    full_name: initialName ?? '',
+  }))
   const [errors, setErrors] = useState<Partial<CustomerFormData>>({})
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)

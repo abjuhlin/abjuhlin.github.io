@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import { CustomerModal } from '@/components/customers/CustomerModal'
 
 interface Customer {
   id: string
@@ -54,6 +55,16 @@ export default function NewJobPage() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [proposalRef, setProposalRef] = useState<Proposal | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [showCustomerModal, setShowCustomerModal] = useState(false)
+  const [companyId, setCompanyId] = useState('')
+
+  // Fetch current user's company_id
+  useEffect(() => {
+    fetch('/api/me')
+      .then((r) => r.json())
+      .then((data) => { if (data?.company_id) setCompanyId(data.company_id) })
+      .catch(() => {})
+  }, [])
 
   // Fetch customers for search
   useEffect(() => {
@@ -165,6 +176,24 @@ export default function NewJobPage() {
     }
   }
 
+  function handleCustomerCreated(newCustomer: any) {
+    if (newCustomer?.id) {
+      const c: Customer = {
+        id: newCustomer.id,
+        full_name: newCustomer.full_name ?? '',
+        phone: newCustomer.phone ?? '',
+        email: newCustomer.email ?? null,
+        address: newCustomer.address ?? null,
+        city: newCustomer.city ?? null,
+        state: newCustomer.state ?? null,
+        zip: newCustomer.zip ?? null,
+      }
+      setCustomers((prev) => [c, ...prev])
+      selectCustomer(c)
+    }
+    setShowCustomerModal(false)
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
@@ -214,7 +243,7 @@ export default function NewJobPage() {
               onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 150)}
               autoComplete="off"
             />
-            {showCustomerDropdown && filteredCustomers.length > 0 && (
+            {showCustomerDropdown && (filteredCustomers.length > 0 || customerSearch.trim()) && (
               <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
                 {filteredCustomers.slice(0, 10).map((c) => (
                   <button
@@ -227,6 +256,21 @@ export default function NewJobPage() {
                     <span className="ml-2 text-gray-500 text-xs">{c.phone}</span>
                   </button>
                 ))}
+                {customerSearch.trim() && (
+                  <button
+                    type="button"
+                    className="w-full text-left px-4 py-2.5 hover:bg-brand/5 text-sm border-t border-gray-100 flex items-center gap-2 text-brand font-medium"
+                    onMouseDown={() => {
+                      setShowCustomerDropdown(false)
+                      setShowCustomerModal(true)
+                    }}
+                  >
+                    <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create "{customerSearch.trim()}"
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -371,6 +415,15 @@ export default function NewJobPage() {
           </Link>
         </div>
       </form>
+
+      {showCustomerModal && companyId && (
+        <CustomerModal
+          companyId={companyId}
+          initialName={customerSearch.trim()}
+          onClose={() => setShowCustomerModal(false)}
+          onSuccess={handleCustomerCreated}
+        />
+      )}
     </div>
   )
 }
