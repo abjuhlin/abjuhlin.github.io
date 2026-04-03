@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { Modal } from '@/components/ui/Modal'
 
-type Tab = 'company' | 'reviews' | 'team' | 'notifications'
+type Tab = 'company' | 'reviews' | 'team' | 'notifications' | 'demo'
 
 interface CompanySettings {
   name: string
@@ -64,6 +64,11 @@ export default function SettingsPage() {
     notify_review_request: false,
   })
 
+  // Demo data
+  const [sampleLoaded, setSampleLoaded] = useState<boolean | null>(null)
+  const [sampleNeedsMigration, setSampleNeedsMigration] = useState(false)
+  const [sampleBusy, setSampleBusy] = useState(false)
+
   // Team
   const [team, setTeam] = useState<TeamMember[]>([])
   const [currentUserId, setCurrentUserId] = useState<string>('')
@@ -82,10 +87,11 @@ export default function SettingsPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [meRes, settingsRes, teamRes] = await Promise.all([
+        const [meRes, settingsRes, teamRes, sampleRes] = await Promise.all([
           fetch('/api/me'),
           fetch('/api/settings'),
           fetch('/api/team'),
+          fetch('/api/sample-data'),
         ])
 
         if (meRes.ok) {
@@ -118,6 +124,12 @@ export default function SettingsPage() {
         if (teamRes.ok) {
           const members = await teamRes.json()
           setTeam(members || [])
+        }
+
+        if (sampleRes.ok) {
+          const sd = await sampleRes.json()
+          setSampleLoaded(sd.loaded ?? false)
+          setSampleNeedsMigration(sd.needsMigration ?? false)
         }
       } catch (err) {
         toast.error('Failed to load settings')
@@ -293,11 +305,28 @@ export default function SettingsPage() {
     }
   }
 
+  async function toggleSampleData() {
+    setSampleBusy(true)
+    try {
+      const method = sampleLoaded ? 'DELETE' : 'POST'
+      const res = await fetch('/api/sample-data', { method })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed')
+      setSampleLoaded(!sampleLoaded)
+      toast.success(sampleLoaded ? 'Sample data removed.' : 'Sample data loaded!')
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setSampleBusy(false)
+    }
+  }
+
   const tabs: { id: Tab; label: string }[] = [
     { id: 'company', label: 'Company Profile' },
     { id: 'reviews', label: 'Google Reviews' },
     { id: 'team', label: 'Team Members' },
     { id: 'notifications', label: 'Notifications' },
+    { id: 'demo', label: 'Demo Data' },
   ]
 
   if (loading) {
@@ -644,6 +673,61 @@ export default function SettingsPage() {
             <button className="btn-primary" onClick={saveNotifications} disabled={saving}>
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Demo Data */}
+      {activeTab === 'demo' && (
+        <div className="card p-6 space-y-5">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Demo Data</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Load realistic sample customers, jobs, invoices, and estimates to see how FieldFlow looks with data. Remove it anytime — only sample records are deleted.
+            </p>
+          </div>
+
+          {sampleNeedsMigration ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <p className="font-semibold mb-1">Migration required</p>
+              <p>
+                Run <code className="font-mono bg-amber-100 px-1 rounded">supabase/migrations/002_add_is_sample.sql</code> in your{' '}
+                <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="underline">
+                  Supabase SQL editor
+                </a>{' '}
+                to enable demo data.
+              </p>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div>
+                <p className="font-medium text-gray-900 text-sm">
+                  {sampleLoaded === null
+                    ? 'Checking…'
+                    : sampleLoaded
+                    ? 'Sample data is currently loaded'
+                    : 'No sample data loaded'}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {sampleLoaded
+                    ? '5 customers · 9 jobs · 4 invoices · 2 estimates'
+                    : 'Includes customers, jobs across all statuses, invoices, and estimates.'}
+                </p>
+              </div>
+              <button
+                onClick={toggleSampleData}
+                disabled={sampleBusy || sampleLoaded === null}
+                className={sampleLoaded ? 'btn-secondary text-sm text-red-600 border-red-200 hover:bg-red-50' : 'btn-primary text-sm'}
+              >
+                {sampleBusy
+                  ? sampleLoaded ? 'Removing…' : 'Loading…'
+                  : sampleLoaded ? 'Remove Sample Data' : 'Load Sample Data'}
+              </button>
+            </div>
+          )}
+
+          <div className="text-xs text-gray-400 border-t border-gray-100 pt-4">
+            Sample data is tagged internally and never mixed with your real records. Removing it deletes only records marked as sample data.
           </div>
         </div>
       )}
